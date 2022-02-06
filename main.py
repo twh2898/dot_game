@@ -6,8 +6,8 @@ from random import random
 radius = 5
 dot_color = (255, 0, 0)
 guess_color = (0, 255, 0)
-shuffle_dots = False
-show_first = True
+shuffle_dots = True
+show_s = 1
 
 
 class App(pyglet.window.Window):
@@ -23,13 +23,14 @@ class App(pyglet.window.Window):
         self.half_width = self.width // 2
         self.half_height = self.height // 2
 
-        self.show_dots = show_first
+        self.show_dots = True
 
         self._dots = []
         self._guess = []
 
         self._max_dist_sqr = 0
         self._gen_dots()
+        self.reset()
 
     def _gen_dots(self):
         self._dots.clear()
@@ -43,16 +44,22 @@ class App(pyglet.window.Window):
                 x, y, radius, color=dot_color)
             self._dots.append(dot)
 
-    def reset(self):
+    def hide(self, dt):
         self.show_dots = False
+
+    def reset(self):
         self._guess.clear()
         self._score.text = ''
         if shuffle_dots:
             self._gen_dots()
+        self.show_dots = True
+        pyglet.clock.schedule_once(self.hide, show_s)
 
     def on_mouse_press(self, x, y, button, mods):
         if len(self._guess) == self.n_dots:
             self.reset()
+            return
+        if self.show_dots:
             return
         dot = pyglet.shapes.Circle(x, y, radius,
                                    color=guess_color)
