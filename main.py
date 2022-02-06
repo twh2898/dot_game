@@ -28,6 +28,7 @@ class App(pyglet.window.Window):
         self._dots = []
         self._dots_labels = []
         self._guess = []
+        self._guess_labels = []
 
         self._max_dist_sqr = 0
         self._gen_dots()
@@ -53,6 +54,7 @@ class App(pyglet.window.Window):
 
     def reset(self):
         self._guess.clear()
+        self._guess_labels.clear()
         self._score.text = ''
         if shuffle_dots:
             self._gen_dots()
@@ -68,6 +70,10 @@ class App(pyglet.window.Window):
         dot = pyglet.shapes.Circle(x, y, radius,
                                    color=guess_color)
         self._guess.append(dot)
+        l = pyglet.text.Label(str(len(self._guess_labels)),
+                              x=x + 10, y=y, anchor_y='center')
+        self._guess_labels.append(l)
+
         if len(self._guess) == self.n_dots:
             self.calc_score()
             self.show_dots = True
@@ -83,6 +89,8 @@ class App(pyglet.window.Window):
                 label.draw()
         for guess in self._guess:
             guess.draw()
+        for label in self._guess_labels:
+            label.draw()
 
     def calc_score(self):
         dist_sqr = 0
