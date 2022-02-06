@@ -6,6 +6,8 @@ from random import random
 radius = 5
 dot_color = (255, 0, 0)
 guess_color = (0, 255, 0)
+shuffle_dots = False
+show_first = True
 
 
 class App(pyglet.window.Window):
@@ -21,13 +23,17 @@ class App(pyglet.window.Window):
         self.half_width = self.width // 2
         self.half_height = self.height // 2
 
-        self.show_dots = True
+        self.show_dots = show_first
 
         self._dots = []
         self._guess = []
 
         self._max_dist_sqr = 0
+        self._gen_dots()
 
+    def _gen_dots(self):
+        self._dots.clear()
+        self._max_dist_sqr = 0
         for _ in range(self.n_dots):
             x, y = random() * self.width, random() * self.height
             d_x = max(x, self.width - x)
@@ -37,11 +43,16 @@ class App(pyglet.window.Window):
                 x, y, radius, color=dot_color)
             self._dots.append(dot)
 
+    def reset(self):
+        self.show_dots = False
+        self._guess.clear()
+        self._score.text = ''
+        if shuffle_dots:
+            self._gen_dots()
+
     def on_mouse_press(self, x, y, button, mods):
         if len(self._guess) == self.n_dots:
-            self.show_dots = False
-            self._guess.clear()
-            self._score.text = ''
+            self.reset()
             return
         dot = pyglet.shapes.Circle(x, y, radius,
                                    color=guess_color)
@@ -68,6 +79,7 @@ class App(pyglet.window.Window):
             d_y = max(y, self.height - y)
             dist_sqr += d_x ** 2 + d_y ** 2
         # TODO: Calculate the score
+        # Each guess should have a specific dot. (eye to eye, etc.)
         score = self._max_dist_sqr - dist_sqr
         self._score.text = f'Score: {score}%'
 
