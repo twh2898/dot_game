@@ -8,6 +8,10 @@ dot_color = (255, 0, 0)
 guess_color = (0, 255, 0)
 shuffle_dots = True
 show_s = 1
+score_curve = 6  # Exponent which is >= 0
+
+HELP_TEXT_1 = 'Click to place each point'
+HELP_TEXT_2 = 'Click to start again'
 
 
 class App(pyglet.window.Window):
@@ -19,6 +23,8 @@ class App(pyglet.window.Window):
 
         self._label = pyglet.text.Label(f'{n_dots} dots', x=10, y=10)
         self._score = pyglet.text.Label('', x=10, y=30)
+        self._help_text = pyglet.text.Label(
+            HELP_TEXT_1, x=10, y=self.height-30)
 
         self.half_width = self.width // 2
         self.half_height = self.height // 2
@@ -56,6 +62,7 @@ class App(pyglet.window.Window):
         self._guess.clear()
         self._guess_labels.clear()
         self._score.text = ''
+        self._help_text.text = HELP_TEXT_1
         if shuffle_dots:
             self._gen_dots()
         self.show_dots = True
@@ -77,11 +84,13 @@ class App(pyglet.window.Window):
         if len(self._guess) == self.n_dots:
             self.calc_score()
             self.show_dots = True
+            self._help_text.text = HELP_TEXT_2
 
     def on_draw(self):
         self.clear()
         self._label.draw()
         self._score.draw()
+        self._help_text.draw()
         if self.show_dots:
             for dot in self._dots:
                 dot.draw()
@@ -94,14 +103,12 @@ class App(pyglet.window.Window):
 
     def calc_score(self):
         dist_sqr = 0
-        for guess in self._guess:
-            x, y = guess.x, guess.y
-            d_x = max(x, self.width - x)
-            d_y = max(y, self.height - y)
+        for dot, guess in zip(self._dots, self._guess):
+            d_x = abs(dot.x - guess.x)
+            d_y = abs(dot.y - guess.y)
             dist_sqr += d_x ** 2 + d_y ** 2
-        # TODO: Calculate the score
-        # Each guess should have a specific dot. (eye to eye, etc.)
-        score = self._max_dist_sqr - dist_sqr
+        score = 1 - dist_sqr / self._max_dist_sqr
+        score = (100 * score ** score_curve)
         self._score.text = f'Score: {score}%'
 
 
