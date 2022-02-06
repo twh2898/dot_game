@@ -26,6 +26,7 @@ class App(pyglet.window.Window):
         self.show_dots = True
 
         self._dots = []
+        self._dots_labels = []
         self._guess = []
 
         self._max_dist_sqr = 0
@@ -34,8 +35,9 @@ class App(pyglet.window.Window):
 
     def _gen_dots(self):
         self._dots.clear()
+        self._dots_labels.clear()
         self._max_dist_sqr = 0
-        for _ in range(self.n_dots):
+        for i in range(self.n_dots):
             x, y = random() * self.width, random() * self.height
             d_x = max(x, self.width - x)
             d_y = max(y, self.height - y)
@@ -43,6 +45,8 @@ class App(pyglet.window.Window):
             dot = pyglet.shapes.Circle(
                 x, y, radius, color=dot_color)
             self._dots.append(dot)
+            l = pyglet.text.Label(str(i), x=x + 10, y=y, anchor_y='center')
+            self._dots_labels.append(l)
 
     def hide(self, dt):
         self.show_dots = False
@@ -75,6 +79,8 @@ class App(pyglet.window.Window):
         if self.show_dots:
             for dot in self._dots:
                 dot.draw()
+            for label in self._dots_labels:
+                label.draw()
         for guess in self._guess:
             guess.draw()
 
